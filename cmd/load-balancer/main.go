@@ -29,10 +29,10 @@ func main() {
 
             _, err := net.Listen("tcp", config.ListenAddr)
             if err != nil {
-                log_helper.LogError(ctx, "Failed to listen to addr: %s. Error is: %+v", config.ListenAddr, err)
+                log_helper.LogError(ctx, "Failed to listen to address: %s. Error is: %v", config.ListenAddr, err)
                 return err
             }
-            log_helper.LogInfo(ctx, "Listening to addr: %s", config.ListenAddr)
+            log_helper.LogInfo(ctx, "Listening to address: %s", config.ListenAddr)
 
             //// now, we can bind to hc port. we prefer this before connecting and
             //// advertising ourselves to switchboard.
@@ -55,7 +55,7 @@ func main() {
     rootCmd.AddCommand(runCmd)
 
     if err := rootCmd.Execute(); err != nil {
-        fmt.Printf("Failed to start the load balancer. Error is: +%v\n", err)
+        fmt.Printf("Failed to start the load balancer. Error is: %v\n", err)
         os.Exit(-1)
     }
 }
