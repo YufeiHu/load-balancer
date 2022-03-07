@@ -9,7 +9,7 @@ import (
 )
 
 const (
-    WorkRequestKey = "workRequest"
+    workRequestIdKey = "workRequest"
 )
 
 // GetInterruptableCtx creates a child context that gets cancelled
@@ -43,3 +43,14 @@ func Delay(ctx context.Context, duration time.Duration) error {
     return ctx.Err()
 }
 
+func WorkRequestId(ctx context.Context) (workRequestId string) {
+    workRequestId, ok := ctx.Value(workRequestIdKey).(string)
+    if !ok {
+        workRequestId = "UNDEFINED"
+    }
+    return
+}
+
+func SetWorkRequestId(ctx context.Context, uuid string) context.Context {
+    return context.WithValue(ctx, workRequestIdKey, uuid)
+}

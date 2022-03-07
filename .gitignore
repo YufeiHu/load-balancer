@@ -3,3 +3,4 @@
 *.iml
 *.log
 cmd/load-balancer/load-balancer
+cmd/worker/worker

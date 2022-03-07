@@ -1,10 +1,10 @@
 package log_helper
 
 import (
-    "context"
-    "fmt"
-    "load-balancer/internal/context_helper"
-    "time"
+	"context"
+	"fmt"
+	"load-balancer/internal/helper/context_helper"
+	"time"
 )
 
 type level string
@@ -28,10 +28,6 @@ func LogWarn(ctx context.Context, format string, args ...interface{}) {
 }
 
 func log(ctx context.Context, l level, format string, args ...interface{}) {
-    workRequestId, ok := ctx.Value(context_helper.WorkRequestKey).(string)
-    if !ok {
-        workRequestId = "UNDEFINED"
-    }
-
-    fmt.Printf("[%s] %s [%s]: %s\n", l, time.Now().Format("15:04:05 01-02-2006 (-0700)"), workRequestId, fmt.Sprintf(format, args...))
+    workRequestId := context_helper.WorkRequestId(ctx)
+    fmt.Printf("[%s] %s [%s]: %s\n", l, time.Now().Format("2006-01-02 15:04:05 MST"), workRequestId, fmt.Sprintf(format, args...))
 }

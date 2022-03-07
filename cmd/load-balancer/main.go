@@ -4,8 +4,9 @@ import (
     "context"
     "fmt"
     "load-balancer/internal/config"
-    "load-balancer/internal/context_helper"
-    "load-balancer/internal/log_helper"
+    "load-balancer/internal/helper/context_helper"
+    "load-balancer/internal/helper/log_helper"
+    "load-balancer/internal/load_balancer"
     "net"
     "os"
 
@@ -27,26 +28,18 @@ func main() {
             ctx, cancel := context_helper.GetInterruptableCtx(context.Background())
             defer cancel()
 
-            _, err := net.Listen("tcp", config.ListenAddr)
+            listener, err := net.Listen("tcp", config.LbListenAddr)
             if err != nil {
-                log_helper.LogError(ctx, "Failed to listen to address: %s. Error is: %v", config.ListenAddr, err)
+                log_helper.LogError(ctx, "Failed to listen to address: %s. Error: %v", config.LbListenAddr, err)
                 return err
             }
-            log_helper.LogInfo(ctx, "Listening to address: %s", config.ListenAddr)
+            log_helper.LogInfo(ctx, "Listening to address: %s", config.LbListenAddr)
 
-            //// now, we can bind to hc port. we prefer this before connecting and
-            //// advertising ourselves to switchboard.
-            //hcLn, err := zsys.TryBind(ctx, hcAddr, zsys.DefaultBindBackoff())
-            //if err != nil {
-            //    svcLn.Close()
-            //    logger.Errorf("failed to bind to hc addr %s: %v", hcAddr, err)
-            //    return err
-            //}
-            //
-            //cfg := csa.DefaultCSAConfig(swUdsPath)
-            //if err := csa.CreateCSA(ctx, cfg, svcLn, hcLn); err != nil {
-            //    return err
-            //}
+            err = load_balancer.Run(ctx, listener)
+            if err != nil {
+                log_helper.LogError(ctx, "Failed to run load balancer. Error: %v", err)
+                return err
+            }
 
             return nil
         },
@@ -55,7 +48,7 @@ func main() {
     rootCmd.AddCommand(runCmd)
 
     if err := rootCmd.Execute(); err != nil {
-        fmt.Printf("Failed to start the load balancer. Error is: %v\n", err)
+        fmt.Printf("Failed to run the load balancer. Error: %v\n", err)
         os.Exit(-1)
     }
 }
